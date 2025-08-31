@@ -2,12 +2,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 public class AppTest {
 
     App app;
+    String s = "racecar";
+    String z = "notapalindrome";
 
     @BeforeEach
     void setup() {
@@ -15,16 +16,27 @@ public class AppTest {
     }
 
     @Test
-    @DisplayName("Simple Modulus should work")
-    void testModulus() {
-        assertEquals(0, app.modulus(15, 5),
-          "Regular Modulus sould work");
+    @DisplayName("Palindrome Is True Test")
+    void testPalindrome() {
+        assertTrue(app.findPalindrome(s), "Palindrome test should work!");
     }
 
-    @RepeatedTest(5)
-    @DisplayName("Ensure that we can receive non zero answers as well")
-    void testModulusNonZeroReturn() {
-      assertEquals(1, app.modulus(5, 4), "Four modulus five should be 1");
-      assertEquals(2, app.modulus(5, 3), "Three modulus 5 should be 2");
+    @Test
+    @DisplayName("Palindrome Is False Test")
+    void secondTestPalindrome() {
+      assertFalse(app.findPalindrome(z), "Palindrome test should NOT work!");
+    }
+
+    @Test
+    @DisplayName("Fahrenheit To Celsius Test")
+    void fahrenheitToCelsius() {
+      assertEquals(0, app.fahrenheitToCelsius(32), "32 Degrees in Fahrenheit is 0 Degrees Celsius");
+    }
+
+    @Test
+    @DisplayName("Celsius To Fahrenheit Test")
+    void celsiusToFahrenheit() {
+      assertEquals(32, app.celsiusToFahrenheit(0), "0 Degrees in Celsius is 32 Degrees in Fahrenheit");
     }
 }
+
