@@ -1,1 +1,11 @@
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/gui/MainFrame.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/Move.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/controller/GameController.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/Game.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/Board.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/GeneralGame.java
 /home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/Main.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/players/HumanPlayer.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/players/player.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/SimpleGame.java
+/home/william/Github/SOS-Board-Game/src/main/java/com/william/sos/model/Console.java
