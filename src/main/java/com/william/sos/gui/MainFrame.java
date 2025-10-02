@@ -2,76 +2,66 @@ package com.william.sos.gui;
 
 import java.awt.*;
 import javax.swing.*;
-import com.william.sos.model.*;
 
-@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
-	public static final int CELL_SIZE = 100;
-	public static final int GRID_WIDTH = 8;
-	public static final int GRID_WIDTH_HALF = GRID_WIDTH / 2;
+	
+	private static final int MIN_BOARD_SIZE = 3;
+	private static final int DEFAULT_BOARD_SIZE = 3;
+	
+	private JTextField sizeInput;
+	private JButton startButton;
+	private BoardPanel boardPanel;
 
-	public static final int CELL_PADDING = CELL_SIZE / 6;
-	public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2;
-	public static final int SYMBOL_STROKE_WDITH = 8;
-
-	private int CANVAS_WIDTH;
-	public int CANVAS_HEIGHT;
-
-	private GameBoardCanvas gameboardCanvas;
-
-	private Board board;
-
-	public MainFrame(Board board) {
-		this.board = board;
-		setContentPanel();
+	public MainFrame() {
+		setTitle("SOS Game");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+
+		JPanel topPanel = new JPanel();
+		topPanel.add(new JLabel("Board Size: "));
+
+		sizeInput = new JTextField(5);
+		sizeInput.setText(String.valueOf(DEFAULT_BOARD_SIZE));
+		topPanel.add(sizeInput);
+
+		startButton = new JButton("Start");
+		startButton.addActionListener(e -> rebuildBoard());
+		topPanel.add(startButton);
+
+		add(topPanel, BorderLayout.NORTH);
+
+		boardPanel = new BoardPanel(DEFAULT_BOARD_SIZE);
+		add(boardPanel, BorderLayout.CENTER);
+
 		pack();
-		setTitle("Tic Tac Toe");
 		setVisible(true);
 	}
-
-	public Board getBoard(){
-		return board;
-	}
-
-	private void setContentPanel() {
-		gameboardCanvas = new GameBoardCanvas();
-		CANVAS_WIDTH = CELL_SIZE * 3;
-		CANVAS_HEIGHT = CELL_SIZE * 3;
-		gameboardCanvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
-
-		Container contentPane = getContentPane();
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(gameboardCanvas, BorderLayout.CENTER);
-	}
-
-	class GameBoardCanvas extends JPanel {
-		GameBoardCanvas(){}
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			setBackground(Color.WHITE);
-			drawGridLines(g);
+	
+	private void rebuildBoard() {
+		int boardSize;
+		try {
+			boardSize = Integer.parseInt(sizeInput.getText());
+			if (boardSize < MIN_BOARD_SIZE) {
+				JOptionPane.showMessageDialog(this, "Board size must be >= 3");
+				return;
+			}
+		} catch (NumberFormatException ex) {
+			JOptionPane.showMessageDialog(this, "Invalid board size!");
+			boardSize = DEFAULT_BOARD_SIZE;
+			return;
 		}
 
-		private void drawGridLines(Graphics g) {
-			g.setColor(Color.LIGHT_GRAY);
-			for (int row = 1; row < 3; row++) {
-				g.fillRoundRect(0, CELL_SIZE * row - GRID_WIDTH_HALF, CANVAS_WIDTH-1, GRID_WIDTH, GRID_WIDTH, GRID_WIDTH);
-			}
-			for (int col = 1; col < 3; col++) {
-				g.fillRoundRect(CELL_SIZE * col - GRID_WIDTH_HALF, 0, GRID_WIDTH, CANVAS_HEIGHT-1, GRID_WIDTH, GRID_WIDTH);
-			}
-		}
+		remove(boardPanel);
+		boardPanel = new BoardPanel(boardSize);
+		add(boardPanel, BorderLayout.CENTER);
+		
+		// Refresh window
+		pack();
+		revalidate();
+		repaint();
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new MainFrame(new Board());
-			}
-		});
+		SwingUtilities.invokeLater(() -> new MainFrame());
 	}
-		
 }

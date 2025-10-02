@@ -1,20 +1,39 @@
 package com.william.sos.model;
 
 public class Board {
-	private int[][] grid;
-	private char turn = 'X';
+	private String[][] grid;
+	private int size; 
 
 
-	public Board() {
-		grid = new int[3][3];
-	}
-
-	public int getCell(int row, int column) {
-		return 	(row >= 0 && row < 3 && column >= 0 && column < 3) ? grid[row][column] : -1;
-	}
+	// Initliaze size and grid with empty values
+	public Board(int size) {
+		this.size = size;
 		
-	public char getTurn() {
-		return turn;	
+		grid = new String[size][size];
+		for (int row = 0; row < size; row++){
+			for (int col = 0; col < size; col++) {
+				grid[row][col] = ""; // empty square
+			}
+		}
 	}
-		
+
+	public int getSize() {
+		return size;
+	}
+
+	public String getSquare(int row, int col) {
+		return grid[row][col];
+	}
+
+	public boolean placeMove(int row, int col, String letter) {
+		if (grid[row][col].equals("")) {
+			grid[row][col] = letter;
+			return true;
+		}
+		return false;
+	}
+
+	public String getCell(int row, int col) {
+		return 	grid[row][col];
+	}	
 }
