@@ -2,6 +2,8 @@ package com.william.sos.gui;
 
 import com.william.sos.model.Board;
 import com.william.sos.model.Game;
+import com.william.sos.model.SimpleGame;
+import com.william.sos.model.GeneralGame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +15,12 @@ public class BoardPanel extends JPanel {
     private int boardSize;
     private static final int FIXED_BOARD_SIZE = 600; // fixed drawing area
 
-    public BoardPanel(int boardSize) {
+    private String currentLetter = "S";
+
+    public BoardPanel(int boardSize, String gameMode) {
         this.boardSize = boardSize;
-        this.game = new Game(boardSize);
+
+        startNewGame(gameMode);
 
         setPreferredSize(new Dimension(FIXED_BOARD_SIZE, FIXED_BOARD_SIZE));
         setBackground(Color.WHITE);
@@ -26,30 +31,45 @@ public class BoardPanel extends JPanel {
                 int cellSize = FIXED_BOARD_SIZE / boardSize;
                 int row = e.getY() / cellSize;
                 int col = e.getX() / cellSize;
-
                 handleMove(row, col);
             }
         });
     }
 
-        // inside BoardPanel.java
-    private java.util.function.Supplier<String> letterSupplier;
-
-    public void setLetterSupplier(java.util.function.Supplier<String> supplier) {
-        this.letterSupplier = supplier;
+    public void startNewGame(String gameMode) {
+        if (gameMode.equalsIgnoreCase("Simple")) {
+            this.game = new SimpleGame(boardSize);
+        } else {
+            this.game = new GeneralGame(boardSize);
+        }
+        this.currentLetter = "S";
+        repaint();
     }
 
-    // Update handleMove:
-    private void handleMove(int row, int col) {
-        String letter = letterSupplier.get(); // Get current player's choice
-        boolean success = game.makeMove(row, col, letter);
-        if (success) {
-            repaint();
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid move! Square already occupied.");
+    public void setCurrentLetter(String letter) {
+        if (letter != null && (letter.equalsIgnoreCase("S") || letter.equalsIgnoreCase("O"))) {
+            this.currentLetter = letter.toUpperCase();
         }
     }
 
+    private void handleMove(int row, int col) {
+        boolean success = game.makeMove(row, col, currentLetter);
+
+        if (success) {
+            repaint();
+
+            if (game.isGameOver()) {
+                Game.Player winner = game.getWinner();
+                String message = (winner != null)
+                        ? "Game over! Winner: " + winner
+                        : "Game over! It's a draw.";
+                JOptionPane.showMessageDialog(this, message);
+            }
+            SwingUtilities.getWindowAncestor(this).repaint();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid move! Square already occupied or invalid.");
+        }
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -58,14 +78,12 @@ public class BoardPanel extends JPanel {
         int cellSize = FIXED_BOARD_SIZE / boardSize;
         Board board = game.getBoard();
 
-        // Draw grid lines
         g.setColor(Color.BLACK);
         for (int i = 0; i <= boardSize; i++) {
-            g.drawLine(i * cellSize, 0, i * cellSize, FIXED_BOARD_SIZE); // vertical
-            g.drawLine(0, i * cellSize, FIXED_BOARD_SIZE, i * cellSize); // horizontal
+            g.drawLine(i * cellSize, 0, i * cellSize, FIXED_BOARD_SIZE);
+            g.drawLine(0, i * cellSize, FIXED_BOARD_SIZE, i * cellSize);
         }
 
-        // Draw letters
         for (int row = 0; row < boardSize; row++) {
             for (int col = 0; col < boardSize; col++) {
                 String letter = board.getSquare(row, col);
@@ -78,6 +96,16 @@ public class BoardPanel extends JPanel {
                     g.drawString(letter, x, y);
                 }
             }
+        }
+
+        for (Board.SOSLine line : board.getCompletedSOS()) {
+            int startX = line.startCol * cellSize + cellSize / 2;
+            int startY = line.startRow * cellSize + cellSize / 2;
+            int endX = line.endCol * cellSize + cellSize / 2;
+            int endY = line.endRow * cellSize + cellSize / 2;
+
+            g.setColor(line.playerColor.equals("Blue") ? Color.BLUE : Color.RED);
+            g.drawLine(startX, startY, endX, endY);
         }
     }
 

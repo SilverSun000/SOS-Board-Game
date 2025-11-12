@@ -1,49 +1,81 @@
 package com.william.sos.tests;
 
-import com.william.sos.model.Board;
+import com.william.sos.model.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BoardTest {
+public class BoardTest {
 
-    @Test
-    void testPlaceMoveSuccess() {
-        Board board = new Board(3);
+    private Board board;
 
-        // Place an "S" at (0,0)
-        boolean moveResult = board.placeMove(0, 0, "S");
-        assertTrue(moveResult, "Move should succeed on empty square");
-
-        // Verify the board contains "S" at (0,0)
-        assertEquals("S", board.getSquare(0, 0), "Square (0,0) should contain 'S'");
+    @BeforeEach
+    void setup() {
+        board = new Board(5);
     }
 
     @Test
-    void testPlaceMoveFailure() {
-        Board board = new Board(3);
+    void testEmptyBoardAtStart() {
+        for (int r = 0; r < board.getSize(); r++) {
+            for (int c = 0; c < board.getSize(); c++) {
+                assertEquals("", board.getSquare(r, c), "All squares should start empty");
+            }
+        }
+    }
 
-        // First move succeeds
+    @Test
+    void testValidMove() {
+        assertTrue(board.placeMove(1, 1, "S"));
+        assertEquals("S", board.getSquare(1, 1));
+    }
+
+    @Test
+    void testInvalidMoveOutOfBounds() {
+        assertFalse(board.placeMove(-1, 0, "S"));
+        assertFalse(board.placeMove(5, 5, "O"));
+    }
+
+    @Test
+    void testInvalidMoveOnFilledSquare() {
+        board.placeMove(2, 2, "S");
+        assertFalse(board.placeMove(2, 2, "O"));
+    }
+
+    @Test
+    void testDetectHorizontalSOS() {
         board.placeMove(0, 0, "S");
+        board.placeMove(0, 1, "O");
+        board.placeMove(0, 2, "S");
 
-        // Second move on same square should fail
-        boolean moveResult = board.placeMove(0, 0, "O");
-        assertFalse(moveResult, "Move should fail on occupied square");
-
-        // Verify the board value hasn't changed
-        assertEquals("S", board.getSquare(0, 0), "Square (0,0) should still contain 'S'");
+        List<Board.SOSLine> lines = board.getCompletedSOS();
+        assertEquals(1, lines.size());
+        Board.SOSLine line = lines.get(0);
+        assertEquals(0, line.startRow);
+        assertEquals(0, line.startCol);
+        assertEquals(0, line.endRow);
+        assertEquals(2, line.endCol);
     }
 
     @Test
-    void testGetSquareEmpty() {
-        Board board = new Board(3);
+    void testDetectDiagonalSOS() {
+        board.placeMove(0, 0, "S");
+        board.placeMove(1, 1, "O");
+        board.placeMove(2, 2, "S");
 
-        // Empty squares should return empty string
-        assertEquals("", board.getSquare(1, 1), "Empty square should return empty string");
+        List<Board.SOSLine> lines = board.getCompletedSOS();
+        assertEquals(1, lines.size());
     }
 
     @Test
-    void testBoardSize() {
-        Board board = new Board(5);
-        assertEquals(5, board.getSize(), "Board size should match constructor input");
+    void testResetBoard() {
+        board.placeMove(1, 1, "S");
+        board.reset();
+        for (int r = 0; r < board.getSize(); r++) {
+            for (int c = 0; c < board.getSize(); c++) {
+                assertEquals("", board.getSquare(r, c));
+            }
+        }
+        assertTrue(board.getCompletedSOS().isEmpty());
     }
 }
